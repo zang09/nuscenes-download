@@ -1,18 +1,22 @@
 import requests
 import os
+import argparse
 import hashlib
 from tqdm import tqdm
 import tarfile
 import gzip
 
 # replace with your API url and Bearer Token
-bearer_token = 'eyJraWQiOiJaUk14Z2gwZHg0UnRGVGR1VlhpZm9pa2U0bVJGaVlKN1lm'
+bearer_token = 'eyJraWQiOiJaUk14Z2gwZHg0UnRGVGR1VlhpZm9pa2U0bVJGaVlKN1lmMmVZSUxUblpZPSIsImFsZyI6IlJTMjU2In0.eyJjdXN0b206bmV3c19sZXR0ZXIiOiIxIiwiY3VzdG9tOmNvdW50cnkiOiJLb3JlYSwgUmVwdWJsaWMgb2YiLCJzdWIiOiJmOGYzZmJjZC0yN2ZmLTRjYTQtODJkNS1kYzI1ZmFiMjY1YzciLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfRzU1ZVB6dXNwIiwiY29nbml0bzp1c2VybmFtZSI6ImY4ZjNmYmNkLTI3ZmYtNGNhNC04MmQ1LWRjMjVmYWIyNjVjNyIsImdpdmVuX25hbWUiOiJoYWViZW9tIiwiY3VzdG9tOmNvbXBhbnkiOiJTZW91bCBOYXRpb25hbCBVbml2ZXJzaXR5IiwiYXVkIjoiN2ZxNWp2czVmZnMxYzUwaGQzdG9vYmIzYjkiLCJldmVudF9pZCI6ImVkMDVlMjM3LWNlNjItNDI3ZS05YTZlLTIzYTAzNjgxMzM2YiIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNzA1OTA2MDQyLCJleHAiOjE3MDU5MDk2NDIsImlhdCI6MTcwNTkwNjA0MiwiZmFtaWx5X25hbWUiOiJqdW5nIiwiZW1haWwiOiJoYWViZW9tLmp1bmdAc251LmFjLmtyIn0.SVswbmUrV_l6m_DykRJw_mPuQuUVqvpquolkbWcdwPiW3Qc7Mw968DxLxAIqAPB3O97AZ80FwkMjpnhc6iBW5KSMW-dGDRGt5sPW8eScroqtRfXRQs8TZgjsHioxd94_uRaNllaOV8-DAwxHMEyPfrai6RKkOY_mrOlO9PzKryzYLsiIoDm4gjW_Fl_jEE8K1Pklah1H7i9usTpwLW8mQZgoImJyNRHjOU5IzEc7H94WaP4cYmmwLe7BVKsmxGayaPG4bfic57jNfHwlDJKbiu6Fnt93tXGZyP6TtmzyfDcNN64RfIBu4zIDu5_TSQaplL1_NeozJnFjqpp-1V5qOw'
 
-output_dir = "/path/to/save"
+output_dir = "../"
 region = 'asia' # 'us' or 'asia'
 
+mini = {
+    "v1.0-mini.tgz":"791dd9ced556cfa1b425682f177b5d9b"
+}
 
-download_files = {
+full = {
     "v1.0-trainval_meta.tgz":"3eee698806fcf52330faa2e682b9f3a1",
     "v1.0-trainval01_blobs.tgz":"8b5eaecef969aea173a5317be153ca63",
     "v1.0-trainval02_blobs.tgz":"116085f49ec4c60958f9d49b2bd6bfdd",
@@ -99,8 +103,18 @@ def extract_tar_to_original_folder(tar_file_path):
         tar.extractall(original_folder)
 
 def main():
+    parser = argparse.ArgumentParser(description = "nuscenes downloader")
+    parser.add_argument('--type', required=True, choices=['mini', 'full'])
+    args = parser.parse_args()
+    
     print("Getting download urls...")
     download_data = {}
+    
+    if args.type == 'mini':
+        download_files = mini
+    elif args.type == 'full':
+        download_files = full
+    
     for filename,md5 in download_files.items():
         api_url = f'https://o9k5xn5546.execute-api.us-east-1.amazonaws.com/v1/archives/v1.0/{filename}?region={region}&project=nuScenes'
 
